@@ -2,25 +2,98 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #0f172a;
+  --dash-bg: #f5f7fb;
+  --dash-panel: #ffffff;
+  --dash-panel-soft: #f1f5ff;
+  --dash-panel-glass: rgba(255, 255, 255, 0.7);
+  --dash-border: rgba(15, 23, 42, 0.1);
+  --dash-text: #0f172a;
+  --dash-muted: #64748b;
+  --dash-muted-2: #94a3b8;
+  --dash-primary: #2563eb;
+  --dash-primary-strong: #1d4ed8;
+  --dash-primary-soft: rgba(37, 99, 235, 0.12);
+  --dash-danger-soft: rgba(225, 29, 72, 0.12);
+  --dash-warning-soft: rgba(245, 158, 11, 0.15);
+  --dash-info-soft: rgba(14, 165, 233, 0.12);
+  --dash-success: #16a34a;
+  --dash-danger: #e11d48;
+  --dash-warning: #f59e0b;
+  --dash-info: #0ea5e9;
+  --dash-shadow: rgba(15, 23, 42, 0.08);
+}
+
+html.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --dash-bg: #0b1221;
+  --dash-panel: rgba(17, 26, 45, 0.9);
+  --dash-panel-soft: rgba(255, 255, 255, 0.06);
+  --dash-panel-glass: rgba(17, 26, 45, 0.75);
+  --dash-border: rgba(255, 255, 255, 0.1);
+  --dash-text: #ffffff;
+  --dash-muted: rgba(255, 255, 255, 0.6);
+  --dash-muted-2: rgba(255, 255, 255, 0.4);
+  --dash-primary: #3b82f6;
+  --dash-primary-strong: #2563eb;
+  --dash-primary-soft: rgba(59, 130, 246, 0.2);
+  --dash-danger-soft: rgba(244, 63, 94, 0.2);
+  --dash-warning-soft: rgba(251, 191, 36, 0.18);
+  --dash-info-soft: rgba(56, 189, 248, 0.2);
+  --dash-success: #22c55e;
+  --dash-danger: #f43f5e;
+  --dash-warning: #fbbf24;
+  --dash-info: #38bdf8;
+  --dash-shadow: rgba(0, 0, 0, 0.35);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-cairo);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-cairo), "Segoe UI", Tahoma, Arial, sans-serif;
+}
+
+.dash-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(37, 99, 235, 0.35) transparent;
+}
+
+.dash-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dash-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dash-scroll::-webkit-scrollbar-thumb {
+  background: rgba(37, 99, 235, 0.35);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 700;
+}
+
+summary::-webkit-details-marker {
+  display: none;
+}
+
+summary {
+  list-style: none;
 }
