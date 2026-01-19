@@ -192,6 +192,23 @@ const page = () => {
     <DashboardShell
       title="العملاء"
       subtitle="إدارة قاعدة بيانات العملاء"
+      exportData={{
+        filename: "customers",
+        headers: ["رقم العميل", "الاسم", "الحالة", "البريد الإلكتروني", "رقم الهاتف", "المدينة", "عدد الفواتير", "إجمالي المبيعات", "المدفوع", "المستحق"],
+        rows: customers.map((item) => [
+          item.id,
+          item.name,
+          item.status,
+          item.email,
+          item.phone,
+          item.city,
+          item.invoices,
+          item.sales,
+          item.paid,
+          item.due,
+        ]),
+      }}
+
       headerAction={
         <button
           type="button"

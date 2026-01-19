@@ -87,7 +87,9 @@ const page = () => {
     status: "متوفر" as ProductStatus,
     stock: "0",
     price: "",
+    image: "",
   });
+  const [imageObjectUrl, setImageObjectUrl] = useState<string | null>(null);
 
   const summaryCards = useMemo(() => {
     const total = products.length;
@@ -123,6 +125,24 @@ const page = () => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] ?? null;
+    if (!file) {
+      if (imageObjectUrl) {
+        URL.revokeObjectURL(imageObjectUrl);
+      }
+      setImageObjectUrl(null);
+      setForm((prev) => ({ ...prev, image: "" }));
+      return;
+    }
+    const nextUrl = URL.createObjectURL(file);
+    if (imageObjectUrl) {
+      URL.revokeObjectURL(imageObjectUrl);
+    }
+    setImageObjectUrl(nextUrl);
+    setForm((prev) => ({ ...prev, image: nextUrl }));
+  };
+
   const handleAddProduct = () => {
     const name = form.name.trim();
     const price = Number.parseFloat(form.price);
@@ -138,7 +158,7 @@ const page = () => {
       status: form.status,
       stock: Number.parseInt(form.stock, 10) || 0,
       price,
-      imageTone: "from-slate-200 via-slate-50 to-slate-200",
+      imageTone: form.image.trim() || "from-slate-200 via-slate-50 to-slate-200",
     };
     setProducts((prev) => {
       if (editingId) {
@@ -154,7 +174,12 @@ const page = () => {
       status: "متوفر",
       stock: "0",
       price: "",
+      image: "",
     });
+    if (imageObjectUrl) {
+      URL.revokeObjectURL(imageObjectUrl);
+      setImageObjectUrl(null);
+    }
     setEditingId(null);
     setShowForm(false);
   };
@@ -172,10 +197,19 @@ const page = () => {
       status: target.status,
       stock: String(target.stock),
       price: String(target.price),
+      image: target.imageTone.startsWith("/") || target.imageTone.startsWith("blob:") ? target.imageTone : "",
     });
     setEditingId(target.id);
     setShowForm(true);
   };
+
+  useEffect(() => {
+    return () => {
+      if (imageObjectUrl) {
+        URL.revokeObjectURL(imageObjectUrl);
+      }
+    };
+  }, [imageObjectUrl]);
 
   useEffect(() => {
     if (showForm && formRef.current) {
@@ -187,6 +221,21 @@ const page = () => {
     <DashboardShell
       title="المنتجات"
       subtitle="إدارة بيانات المنتجات والمخزون"
+      exportData={{
+        filename: "products",
+        headers: ["رقم المنتج", "الاسم", "التصنيف", "رمز المنتج", "المورد", "الحالة", "المخزون", "السعر"],
+        rows: products.map((item) => [
+          item.id,
+          item.name,
+          item.category,
+          item.sku,
+          item.supplier,
+          item.status,
+          item.stock,
+          item.price,
+        ]),
+      }}
+
       headerAction={
         <button
           type="button"
@@ -275,6 +324,18 @@ const page = () => {
                 placeholder="0"
                 className="w-full rounded-xl border border-(--dash-border) bg-(--dash-panel-soft) px-4 py-2 text-(--dash-text) placeholder:text-(--dash-muted-2) focus:outline-none"
               />
+            </label>
+            <label className="text-sm text-(--dash-muted) lg:col-span-3">
+              <span className="mb-2 block font-semibold text-(--dash-text)">صورة المنتج</span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="w-full rounded-xl border border-(--dash-border) bg-(--dash-panel-soft) px-4 py-2 text-(--dash-text) placeholder:text-(--dash-muted-2) focus:outline-none"
+              />
+              {form.image ? (
+                <p className="mt-2 text-xs text-(--dash-muted)">تم اختيار صورة للمنتج</p>
+              ) : null}
             </label>
           </div>
           <div className="mt-4 flex justify-end gap-3">

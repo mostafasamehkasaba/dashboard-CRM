@@ -185,6 +185,21 @@ const page = () => {
     <DashboardShell
       title="الفواتير"
       subtitle="إدارة فواتير المبيعات"
+      exportData={{
+        filename: "invoices",
+        headers: ["رقم الفاتورة", "العميل", "الإجمالي", "المدفوع", "المستحق", "الحالة", "التاريخ", "تاريخ الاستحقاق"],
+        rows: invoices.map((item) => [
+          item.id,
+          item.client,
+          item.amount,
+          item.paid,
+          item.due,
+          item.status,
+          item.date,
+          item.dueDate,
+        ]),
+      }}
+
       headerAction={
         <button
           type="button"

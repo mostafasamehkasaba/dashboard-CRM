@@ -21,6 +21,37 @@ const sidebarItems = [
   { label: "التقارير", href: "/reports" },
   { label: "المستخدمون", href: "/users" },
   { label: "سجل الأنشطة", href: "/activity-log" },
+  { label: "خطط الاشتراك", href: "/subscription-plans" },
+  { label: "الإعدادات", href: "/settings" },
+];
+
+type SidebarLink = { label: string; href: string; badge?: string };
+type SidebarGroup = { label: string; children: SidebarLink[] };
+
+const sidebarNavigation: Array<SidebarLink | SidebarGroup> = [
+  { label: "لوحة التحكم", href: "/dashboard" },
+  { label: "الفواتير", href: "/invoices", badge: "5" },
+  { label: "المدفوعات", href: "/payments" },
+  { label: "العملاء", href: "/customers" },
+  { label: "الموردين", href: "/suppliers" },
+  { label: "المنتجات", href: "/products" },
+  { label: "المخزون", href: "/inventory", badge: "3" },
+  { label: "المشتريات", href: "/purchases" },
+  { label: "المصروفات", href: "/expenses" },
+  {
+    label: "الخزنة والبنوك",
+    children: [
+      { label: "الخزنة", href: "/cash" },
+      { label: "البنوك", href: "/banks" },
+      { label: "التحويلات المالية", href: "/financial-transfers" },
+      { label: "سجل الحركة", href: "/movement-log" },
+    ],
+  },
+  { label: "المحفظة المالية", href: "/wallets" },
+  { label: "التقارير", href: "/reports" },
+  { label: "المستخدمون", href: "/users" },
+  { label: "سجل النشاط", href: "/activity-log" },
+  { label: "خطط الاشتراك", href: "/subscription-plans" },
   { label: "الإعدادات", href: "/settings" },
 ];
 
@@ -174,8 +205,55 @@ const DashboardShell = ({
           </div>
 
           <nav className="dash-scroll mt-8 flex-1 space-y-3 overflow-y-auto pr-1 text-sm">
-            {sidebarItems.map((item) => {
-              const isActive = pathname === item.href;
+            {sidebarNavigation.map((item) => {
+              const isGroup = "children" in item;
+              const isActive = isGroup
+                ? item.children.some((child) => child.href === pathname)
+                : pathname === item.href;
+
+              if (isGroup) {
+                return (
+                  <details
+                    key={item.label}
+                    open={isActive}
+                    className="group rounded-xl border border-(--dash-border) bg-(--dash-panel-soft) px-3 py-2 text-sm"
+                  >
+                    <summary
+                      className={`flex cursor-pointer list-none items-center justify-between rounded-lg px-2 py-2 transition ${
+                        isActive ? "text-(--dash-text)" : "text-(--dash-muted)"
+                      }`}
+                    >
+                      <span className="font-medium">{item.label}</span>
+                      <svg
+                        viewBox="0 0 24 24"
+                        className="h-4 w-4 text-(--dash-muted-2) transition group-open:rotate-180"
+                        aria-hidden="true"
+                      >
+                        <path fill="currentColor" d="M7 10l5 5 5-5H7Z" />
+                      </svg>
+                    </summary>
+                    <div className="mt-2 space-y-2 pb-2">
+                      {item.children.map((child) => {
+                        const isChildActive = pathname === child.href;
+                        return (
+                          <Link
+                            key={child.label}
+                            href={child.href}
+                            className={`flex items-center justify-between rounded-lg px-3 py-2 text-xs transition ${
+                              isChildActive
+                                ? "bg-(--dash-primary) text-white shadow-(--dash-primary-soft)"
+                                : "text-(--dash-muted) hover:bg-(--dash-panel-glass)"
+                            }`}
+                          >
+                            <span>{child.label}</span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </details>
+                );
+              }
+
               return (
                 <Link
                   key={item.label}
@@ -218,11 +296,6 @@ const DashboardShell = ({
                 onClick={() => setShowProfileMenu((prev) => !prev)}
                 className="flex items-center gap-3 rounded-2xl border border-(--dash-border) bg-(--dash-panel-soft) px-4 py-2 text-right"
               >
-                <div className="h-9 w-9 rounded-full bg-(--dash-panel-glass)" />
-                <div className="text-sm">
-                  <p className="font-semibold">أحمد محمد</p>
-                  <p className="text-xs text-(--dash-muted)">مدير النظام</p>
-                </div>
                 <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-(--dash-primary) text-white">
                   <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
                     <path
@@ -231,6 +304,11 @@ const DashboardShell = ({
                     />
                   </svg>
                 </span>
+                <div className="text-sm">
+                  <p className="font-semibold">أحمد محمد</p>
+                  <p className="text-xs text-(--dash-muted)">مدير النظام</p>
+                </div>
+                <div className="h-9 w-9 rounded-full bg-(--dash-panel-glass)" />
               </button>
               {showProfileMenu ? (
                 <div className="absolute right-0 top-12 z-30 w-44 rounded-2xl border border-(--dash-border) bg-(--dash-panel) p-2 text-sm shadow-(--dash-shadow)">

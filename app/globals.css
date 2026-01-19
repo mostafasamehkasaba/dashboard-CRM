@@ -46,6 +46,7 @@ html.dark {
   --dash-warning: #fbbf24;
   --dash-info: #38bdf8;
   --dash-shadow: rgba(0, 0, 0, 0.35);
+  
 }
 
 @theme inline {
@@ -96,4 +97,30 @@ summary::-webkit-details-marker {
 
 summary {
   list-style: none;
+}
+
+select option {
+  background-color: var(--dash-panel);
+  color: var(--dash-text);
+}
+
+.dash-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(15, 23, 42, 0.35);
+}
+
+.dash-modal-body {
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 24px;
+  border: 1px solid var(--dash-border);
+  background: var(--dash-panel);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.15);
 }

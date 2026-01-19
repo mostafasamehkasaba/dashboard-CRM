@@ -191,6 +191,22 @@ const page = () => {
     <DashboardShell
       title="الموردين"
       subtitle="إدارة قاعدة بيانات الموردين"
+      exportData={{
+        filename: "suppliers",
+        headers: ["رقم المورد", "الاسم", "الحالة", "البريد الإلكتروني", "رقم الهاتف", "المدينة", "عدد الطلبات", "إجمالي المشتريات", "المستحقات"],
+        rows: suppliers.map((item) => [
+          item.id,
+          item.name,
+          item.status,
+          item.email,
+          item.phone,
+          item.city,
+          item.orders,
+          item.purchases,
+          item.outstanding,
+        ]),
+      }}
+
       headerAction={
         <button
           type="button"

@@ -207,6 +207,22 @@ const page = () => {
     <DashboardShell
       title="الدفعات"
       subtitle="إدارة المدفوعات المستلمة"
+      exportData={{
+        filename: "payments",
+        headers: ["رقم الدفعة", "رقم الفاتورة", "العميل", "المبلغ", "طريقة الدفع", "المحفظة", "الحالة", "التاريخ", "المرجع"],
+        rows: payments.map((item) => [
+          item.id,
+          item.invoice,
+          item.client,
+          item.amount,
+          item.method,
+          item.wallet,
+          item.status,
+          item.date,
+          item.reference,
+        ]),
+      }}
+
       headerAction={
         <button
           type="button"
