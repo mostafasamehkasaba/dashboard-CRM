@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import DashboardShell from "../components/DashboardShell";
 
 type UserRole = "مدير النظام" | "مدير" | "كاشير" | "محاسب";
+
 type UserStatus = "نشط" | "غير نشط";
 
 type UserRow = {
@@ -17,16 +18,18 @@ type UserRow = {
 
 type RoleCard = {
   id: string;
-  name: string;
+  name: UserRole;
   users: number;
 };
 
+type PermissionValue = true | false | "na";
+
 type PermissionRow = {
   section: string;
-  view: boolean;
-  create: boolean;
-  edit: boolean;
-  remove: boolean;
+  view: PermissionValue;
+  create: PermissionValue;
+  edit: PermissionValue;
+  remove: PermissionValue;
 };
 
 const rolesData: RoleCard[] = [
@@ -43,8 +46,8 @@ const permissionsByRole: Record<string, PermissionRow[]> = {
     { section: "العملاء", view: true, create: true, edit: true, remove: true },
     { section: "المنتجات", view: true, create: true, edit: true, remove: true },
     { section: "المخزون", view: true, create: true, edit: true, remove: true },
-    { section: "التقارير", view: true, create: false, edit: false, remove: false },
-    { section: "الإعدادات", view: true, create: false, edit: true, remove: false },
+    { section: "التقارير", view: true, create: "na", edit: "na", remove: "na" },
+    { section: "الإعدادات", view: true, create: "na", edit: true, remove: "na" },
   ],
   manager: [
     { section: "الفواتير", view: true, create: true, edit: true, remove: false },
@@ -52,8 +55,8 @@ const permissionsByRole: Record<string, PermissionRow[]> = {
     { section: "العملاء", view: true, create: true, edit: true, remove: false },
     { section: "المنتجات", view: true, create: true, edit: true, remove: false },
     { section: "المخزون", view: true, create: false, edit: true, remove: false },
-    { section: "التقارير", view: true, create: false, edit: false, remove: false },
-    { section: "الإعدادات", view: true, create: false, edit: false, remove: false },
+    { section: "التقارير", view: true, create: "na", edit: "na", remove: "na" },
+    { section: "الإعدادات", view: true, create: "na", edit: false, remove: "na" },
   ],
   cashier: [
     { section: "الفواتير", view: true, create: true, edit: false, remove: false },
@@ -61,8 +64,8 @@ const permissionsByRole: Record<string, PermissionRow[]> = {
     { section: "العملاء", view: true, create: false, edit: false, remove: false },
     { section: "المنتجات", view: true, create: false, edit: false, remove: false },
     { section: "المخزون", view: true, create: false, edit: false, remove: false },
-    { section: "التقارير", view: true, create: false, edit: false, remove: false },
-    { section: "الإعدادات", view: false, create: false, edit: false, remove: false },
+    { section: "التقارير", view: true, create: "na", edit: "na", remove: "na" },
+    { section: "الإعدادات", view: true, create: "na", edit: false, remove: "na" },
   ],
   accountant: [
     { section: "الفواتير", view: true, create: false, edit: false, remove: false },
@@ -70,8 +73,8 @@ const permissionsByRole: Record<string, PermissionRow[]> = {
     { section: "العملاء", view: true, create: false, edit: false, remove: false },
     { section: "المنتجات", view: true, create: false, edit: false, remove: false },
     { section: "المخزون", view: true, create: false, edit: false, remove: false },
-    { section: "التقارير", view: true, create: false, edit: false, remove: false },
-    { section: "الإعدادات", view: false, create: false, edit: false, remove: false },
+    { section: "التقارير", view: true, create: "na", edit: "na", remove: "na" },
+    { section: "الإعدادات", view: false, create: "na", edit: false, remove: "na" },
   ],
 };
 
@@ -112,7 +115,7 @@ const usersData: UserRow[] = [
 
 const page = () => {
   const [activeTab, setActiveTab] = useState("المستخدمون");
-  const [selectedRole, setSelectedRole] = useState("admin");
+  const [selectedRole, setSelectedRole] = useState("cashier");
   const [query, setQuery] = useState("");
   const [users, setUsers] = useState<UserRow[]>(usersData);
   const [showNewUser, setShowNewUser] = useState(false);
@@ -125,12 +128,12 @@ const page = () => {
 
   const stats = useMemo(
     () => [
-      { label: "إجمالي المستخدمين", value: "4", tone: "text-(--dash-primary)" },
-      { label: "المستخدمون النشطون", value: "3", tone: "text-(--dash-success)" },
+      { label: "إجمالي المستخدمين", value: users.length.toString(), tone: "text-(--dash-primary)" },
+      { label: "المستخدمون النشطون", value: users.filter((user) => user.status === "نشط").length.toString(), tone: "text-(--dash-success)" },
       { label: "الأدوار", value: "4", tone: "text-(--dash-warning)" },
       { label: "الصلاحيات", value: "7", tone: "text-(--dash-info)" },
     ],
-    []
+    [users]
   );
 
   const filteredUsers = useMemo(() => {
@@ -168,6 +171,11 @@ const page = () => {
     }
   };
 
+  const handleRoleSelect = (roleId: string) => {
+    setSelectedRole(roleId);
+    setActiveTab("الأدوار والصلاحيات");
+  };
+
   const roleBadge = (role: UserRole) => {
     if (role === "مدير النظام") {
       return "bg-rose-500/15 text-rose-400";
@@ -187,20 +195,27 @@ const page = () => {
   const selectedRoleLabel = rolesData.find((role) => role.id === selectedRole)?.name ?? "مدير";
   const permissions = permissionsByRole[selectedRole] ?? permissionsByRole.manager;
 
-  const permissionCell = (value: boolean) =>
-    value ? (
-      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400">
-        <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
-          <path fill="currentColor" d="M9.5 16.2 5.8 12.5l1.4-1.4 2.3 2.3 6.1-6.1 1.4 1.4-7.5 7.5Z" />
-        </svg>
-      </span>
-    ) : (
+  const permissionCell = (value: PermissionValue) => {
+    if (value === "na") {
+      return <span className="text-sm text-(--dash-muted)">-</span>;
+    }
+    if (value) {
+      return (
+        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400">
+          <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
+            <path fill="currentColor" d="M9.5 16.2 5.8 12.5l1.4-1.4 2.3 2.3 6.1-6.1 1.4 1.4-7.5 7.5Z" />
+          </svg>
+        </span>
+      );
+    }
+    return (
       <span className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-500/20 text-slate-300">
         <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
           <path fill="currentColor" d="M6.6 5.2 5.2 6.6 10.6 12l-5.4 5.4 1.4 1.4L12 13.4l5.4 5.4 1.4-1.4L13.4 12l5.4-5.4-1.4-1.4L12 10.6 6.6 5.2Z" />
         </svg>
       </span>
     );
+  };
 
   return (
     <DashboardShell
@@ -241,9 +256,7 @@ const page = () => {
             type="button"
             onClick={() => setActiveTab("المستخدمون")}
             className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold transition ${
-              activeTab === "المستخدمون"
-                ? "bg-(--dash-panel) text-(--dash-text) shadow-sm"
-                : "text-(--dash-muted)"
+              activeTab === "المستخدمون" ? "bg-(--dash-panel) text-(--dash-text) shadow-sm" : "text-(--dash-muted)"
             }`}
           >
             <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
@@ -284,7 +297,7 @@ const page = () => {
                 <button
                   key={role.id}
                   type="button"
-                  onClick={() => setSelectedRole(role.id)}
+                  onClick={() => handleRoleSelect(role.id)}
                   className={`flex items-center justify-between rounded-2xl border p-4 text-right transition ${
                     isSelected
                       ? "border-(--dash-primary) bg-(--dash-panel-soft) shadow-sm"
@@ -377,10 +390,7 @@ const page = () => {
                 className="flex items-center gap-2 rounded-2xl border border-(--dash-border) bg-(--dash-panel-soft) px-4 py-2 text-xs font-semibold text-(--dash-text) hover:border-(--dash-primary) hover:bg-(--dash-panel)"
               >
                 <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
-                  <path
-                    fill="currentColor"
-                    d="M4 5h16v2l-6 6v5l-4 2v-7L4 7V5Z"
-                  />
+                  <path fill="currentColor" d="M4 5h16v2l-6 6v5l-4 2v-7L4 7V5Z" />
                 </svg>
                 فلتر
               </button>

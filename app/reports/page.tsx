@@ -13,6 +13,7 @@ import {
   ArcElement,
   PointElement,
   Tooltip,
+  type ChartOptions,
 } from "chart.js";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, ArcElement, Tooltip, Legend);
@@ -244,7 +245,7 @@ const page = () => {
     ],
   };
 
-  const customersPieOptions = {
+  const customersPieOptions: ChartOptions<"pie"> = {
     responsive: true,
     maintainAspectRatio: false,
     layout: {
@@ -257,7 +258,7 @@ const page = () => {
     animations: {
       numbers: {
         type: "number",
-        properties: ["circumference", "endAngle", "startAngle"],
+        properties: ["circumference", "endAngle", "startAngle"] as string[],
         duration: 1400,
         delay: (context: { dataIndex?: number }) => (context.dataIndex ?? 0) * 180,
       },
@@ -268,7 +269,7 @@ const page = () => {
       },
       tooltip: { rtl: true },
     },
-  } as const;
+  };
 
   const createPieLabelPlugin = (id: string) => ({
     id,
